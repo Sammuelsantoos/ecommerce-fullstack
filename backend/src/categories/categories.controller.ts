@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Role } from '../generated/prisma/enums';
-import { PrismaService } from '../prisma/prisma.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../generated/prisma/enums.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 
 @ApiTags('categories')
 @Controller('categories')
