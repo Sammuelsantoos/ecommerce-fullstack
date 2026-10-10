@@ -1,0 +1,22 @@
+/node_modules
+/dist
+.env
+.env.local
+.env*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+.DS_Store
+/coverage
+/.nyc_output
+/.idea
+/prisma/*.db
+/prisma/*.db-journal
+
+/src/generated
+
+# Prisma AI skills (não usamos)
+.claude/
+.windsurf/
+.agents/
+skills-lock.json
