@@ -1,7 +1,33 @@
+# Dependencies
 node_modules/
+
+# Build
 dist/
+build/
+.next/
+out/
+
+# Env
 .env
 .env.local
+.env*.local
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Testing
 coverage/
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
