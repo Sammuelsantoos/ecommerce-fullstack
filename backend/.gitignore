@@ -12,3 +12,11 @@ yarn-debug.log*
 /.idea
 /prisma/*.db
 /prisma/*.db-journal
+
+/src/generated
+
+# Prisma AI skills (não usamos)
+.claude/
+.windsurf/
+.agents/
+skills-lock.json
