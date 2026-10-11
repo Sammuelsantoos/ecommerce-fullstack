@@ -6,12 +6,16 @@ import type { User } from '@/types';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuth, setIsAuth] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setUser(getUser());
+    setIsAuth(isAuthenticated());
+    setMounted(true);
     setLoading(false);
   }, []);
 
-  return { user, loading, isAuth: isAuthenticated() };
+  return { user, isAuth, loading, mounted };
 }
