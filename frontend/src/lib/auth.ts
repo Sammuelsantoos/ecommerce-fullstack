@@ -24,4 +24,7 @@ export const getUser = (): User | null => {
   return raw ? (JSON.parse(raw) as User) : null;
 };
 
-export const isAuthenticated = () => !!getToken();
+export const isAuthenticated = () => {
+  if (typeof window === 'undefined') return false;
+  return !!getToken();
+};
