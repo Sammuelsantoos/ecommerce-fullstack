@@ -47,6 +47,13 @@ export function Header() {
             </Link>
           )}
 
+         {mounted && isAuth && user?.role === 'ADMIN' && (
+    		<Link
+    		 href="/admin" className="text-sm hover:underline">
+    				  Admin
+   			 </Link>
+ 		 )}
+
           <Link href="/cart" className="relative">
             <ShoppingCart className="h-5 w-5" />
             {mounted && cartMounted && cartCount > 0 && (

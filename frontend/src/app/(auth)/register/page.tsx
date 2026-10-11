@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,8 +22,10 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '/';
   const [loading, setLoading] = useState(false);
   const form = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -33,7 +35,7 @@ export default function RegisterPage() {
       const res = await api.post<AuthResponse>('/auth/register', data);
       saveAuth(res.data.access_token);
       toast.success('Conta criada!');
-      router.push('/');
+      router.push(redirectTo);
       router.refresh();
     } catch {
       toast.error('Erro ao criar conta (email pode já estar em uso)');
@@ -91,5 +93,13 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Carregando...</p>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

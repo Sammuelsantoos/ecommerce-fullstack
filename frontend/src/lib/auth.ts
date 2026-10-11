@@ -1,10 +1,39 @@
-import type { User } from '@/types';
+import type { Role, User } from '@/types';
 
-export const saveAuth = (token: string, user?: User) => {
+interface JwtPayload {
+  sub: string;
+  email: string;
+  role: Role;
+  iat: number;
+  exp: number;
+}
+
+function decodeJWT(token: string): JwtPayload | null {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+export const saveAuth = (token: string) => {
   localStorage.setItem('token', token);
-  // Cookie espelho pra middleware do Next
+  // Cookie espelho pro middleware/proxy do Next
   document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-  if (user) localStorage.setItem('user', JSON.stringify(user));
+
+  // Extrai user do JWT
+  const payload = decodeJWT(token);
+  if (payload) {
+    const user: User = {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+      name: payload.email.split('@')[0],
+    };
+    localStorage.setItem('user', JSON.stringify(user));
+  }
 };
 
 export const clearAuth = () => {
