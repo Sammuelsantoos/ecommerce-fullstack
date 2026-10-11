@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,8 +21,10 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '/';
   const [loading, setLoading] = useState(false);
   const form = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -32,7 +34,7 @@ export default function LoginPage() {
       const res = await api.post<AuthResponse>('/auth/login', data);
       saveAuth(res.data.access_token);
       toast.success('Login realizado!');
-      router.push('/');
+      router.push(redirectTo);
       router.refresh();
     } catch {
       toast.error('Credenciais inválidas');
@@ -82,5 +84,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Carregando...</p>}>
+      <LoginForm />
+    </Suspense>
   );
 }
