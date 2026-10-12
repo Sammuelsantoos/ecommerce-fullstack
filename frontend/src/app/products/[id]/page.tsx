@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
@@ -10,11 +10,7 @@ import { useCart } from '@/stores/cart-store';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types';
 
-export default function ProductPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+function ProductContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
@@ -72,5 +68,17 @@ export default function ProductPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  return (
+    <Suspense fallback={<p className="p-8">Carregando...</p>}>
+      <ProductContent params={params} />
+    </Suspense>
   );
 }
