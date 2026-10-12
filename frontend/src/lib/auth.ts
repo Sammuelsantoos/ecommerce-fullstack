@@ -18,6 +18,12 @@ function decodeJWT(token: string): JwtPayload | null {
   }
 }
 
+const emitAuthChange = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('auth:change'));
+  }
+};
+
 export const saveAuth = (token: string) => {
   localStorage.setItem('token', token);
   // Cookie espelho pro middleware/proxy do Next
@@ -34,12 +40,15 @@ export const saveAuth = (token: string) => {
     };
     localStorage.setItem('user', JSON.stringify(user));
   }
+
+  emitAuthChange();
 };
 
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   document.cookie = 'token=; path=/; max-age=0';
+  emitAuthChange();
 };
 
 export const getToken = () => {
