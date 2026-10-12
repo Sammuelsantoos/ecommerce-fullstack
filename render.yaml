@@ -1,0 +1,23 @@
+# Rota gratuita: Render (API) + Neon (Postgres) + Vercel (frontend).
+# Render > New > Blueprint > selecione este repositório.
+services:
+  - type: web
+    name: ecommerce-api
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass # só publica depois que o CI passar
+    envVars:
+      - key: DATABASE_URL # connection string do Neon (com ?sslmode=require)
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGINS # ex.: https://seu-app.vercel.app
+        sync: false
