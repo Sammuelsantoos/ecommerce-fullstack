@@ -1,21 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { getUser, isAuthenticated } from '@/lib/auth';
-import type { User } from '@/types';
+
+const emptySubscribe = () => () => {};
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuth, setIsAuth] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
-  useEffect(() => {
-    setUser(getUser());
-    setIsAuth(isAuthenticated());
-    setMounted(true);
-    setLoading(false);
-  }, []);
+  const user = useSyncExternalStore(
+    emptySubscribe,
+    () => getUser(),
+    () => null
+  );
 
-  return { user, isAuth, loading, mounted };
+  const isAuth = useSyncExternalStore(
+    emptySubscribe,
+    () => isAuthenticated(),
+    () => false
+  );
+
+  return {
+    user,
+    isAuth,
+    mounted,
+    loading: false,
+  };
 }

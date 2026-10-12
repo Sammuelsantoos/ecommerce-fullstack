@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, LogOut, User, Package } from 'lucide-react';
@@ -10,15 +10,24 @@ import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/stores/cart-store';
 import { clearAuth } from '@/lib/auth';
 
+// Função auxiliar de subscrição e leitura do ambiente client-side
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+export function useIsMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+}
+
 export function Header() {
   const router = useRouter();
+  const cartMounted = useIsMounted(); // Hook moderno sem gerar warning no ESLint
   const { user, isAuth, mounted } = useAuth();
   const cartCount = useCart((s) => s.count());
-  const [cartMounted, setCartMounted] = useState(false);
-
-  useEffect(() => {
-    setCartMounted(true);
-  }, []);
 
   const logout = () => {
     clearAuth();
@@ -47,12 +56,11 @@ export function Header() {
             </Link>
           )}
 
-         {mounted && isAuth && user?.role === 'ADMIN' && (
-    		<Link
-    		 href="/admin" className="text-sm hover:underline">
-    				  Admin
-   			 </Link>
- 		 )}
+          {mounted && isAuth && user?.role === 'ADMIN' && (
+            <Link href="/admin" className="text-sm hover:underline">
+              Admin
+            </Link>
+          )}
 
           <Link href="/cart" className="relative">
             <ShoppingCart className="h-5 w-5" />

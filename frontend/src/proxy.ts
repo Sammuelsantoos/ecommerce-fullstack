@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import type { NextProxy } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const protectedRoutes = ['/checkout', '/orders', '/admin'];
 
-export function proxy(req: NextProxy) {
+export function proxy(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   const { pathname } = req.nextUrl;
 

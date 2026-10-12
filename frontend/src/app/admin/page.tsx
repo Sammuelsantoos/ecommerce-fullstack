@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
@@ -26,7 +26,7 @@ export default function AdminPage() {
     imageUrl: '',
   });
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const [p, c] = await Promise.all([
         api.get<Paginated<Product>>('/products', { params: { limit: 100 } }),
@@ -37,7 +37,7 @@ export default function AdminPage() {
     } catch {
       toast.error('Erro ao carregar dados');
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
@@ -46,8 +46,7 @@ export default function AdminPage() {
       return;
     }
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, user, router]);
+  }, [mounted, user, router, load]);
 
   if (!mounted) return <p className="container mx-auto p-8">Carregando...</p>;
 

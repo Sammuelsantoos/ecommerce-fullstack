@@ -5,9 +5,17 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+
+  // Regra do React Compiler que acusa o padrão "ler localStorage no mount".
+  // Mantida como aviso até migrarmos esses hooks para useSyncExternalStore.
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
+
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
