@@ -1,33 +1,38 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { getUser, isAuthenticated } from '@/lib/auth';
 
-const emptySubscribe = () => () => {};
-
 export function useAuth() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
+  const [state, setState] = useState(() => ({
+    mounted: typeof window !== 'undefined',
+    user: typeof window !== 'undefined' ? getUser() : null,
+    isAuth: typeof window !== 'undefined' ? isAuthenticated() : false,
+  }));
 
-  const user = useSyncExternalStore(
-    emptySubscribe,
-    () => getUser(),
-    () => null
-  );
+  useEffect(() => {
+    const syncState = () => {
+      setState({
+        mounted: true,
+        user: getUser(),
+        isAuth: isAuthenticated(),
+      });
+    };
 
-  const isAuth = useSyncExternalStore(
-    emptySubscribe,
-    () => isAuthenticated(),
-    () => false
-  );
+    syncState();
+
+    const handleAuthChange = () => syncState();
+    window.addEventListener('auth:change', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+
+    return () => {
+      window.removeEventListener('auth:change', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
+  }, []);
 
   return {
-    user,
-    isAuth,
-    mounted,
+    ...state,
     loading: false,
   };
 }
