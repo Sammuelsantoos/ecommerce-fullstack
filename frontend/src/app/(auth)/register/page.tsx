@@ -1,0 +1,105 @@
+'use client';
+
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { api } from '@/lib/api';
+import { saveAuth } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { AuthResponse } from '@/types';
+
+const schema = z.object({
+  name: z.string().min(2, 'Nome muito curto'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+});
+
+type FormData = z.infer<typeof schema>;
+
+function RegisterForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') ?? '/';
+  const [loading, setLoading] = useState(false);
+  const form = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      setLoading(true);
+      const res = await api.post<AuthResponse>('/auth/register', data);
+      saveAuth(res.data.access_token);
+      toast.success('Conta criada!');
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      toast.error('Erro ao criar conta (email pode já estar em uso)');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Criar conta</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Input placeholder="Nome" {...form.register('name')} />
+              {form.formState.errors.name && (
+                <p className="mt-1 text-sm text-red-500">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <Input placeholder="Email" {...form.register('email')} />
+              {form.formState.errors.email && (
+                <p className="mt-1 text-sm text-red-500">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <Input
+                type="password"
+                placeholder="Senha"
+                {...form.register('password')}
+              />
+              {form.formState.errors.password && (
+                <p className="mt-1 text-sm text-red-500">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Criando...' : 'Criar conta'}
+            </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Já tem conta?{' '}
+              <Link href="/login" className="underline">
+                Entrar
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<p className="p-8">Carregando...</p>}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
