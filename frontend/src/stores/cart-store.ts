@@ -22,14 +22,20 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       items: [],
       add: (product, quantity = 1) => {
-        const items = [...get().items];
-        const existing = items.find((i) => i.product.id === product.id);
+        const existing = get().items.find((i) => i.product.id === product.id);
+
         if (existing) {
-          existing.quantity += quantity;
-        } else {
-          items.push({ product, quantity });
+          set({
+            items: get().items.map((item) =>
+              item.product.id === product.id
+                ? { ...item, quantity: item.quantity + quantity }
+                : item,
+            ),
+          });
+          return;
         }
-        set({ items });
+
+        set({ items: [...get().items, { product, quantity }] });
       },
       remove: (productId) =>
         set({ items: get().items.filter((i) => i.product.id !== productId) }),
