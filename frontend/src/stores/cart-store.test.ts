@@ -26,6 +26,18 @@ describe('cart store', () => {
     expect(useCart.getState().items[0].quantity).toBe(1);
   });
 
+  it('keeps cart updates immutable when incrementing an existing product', () => {
+    const { add } = useCart.getState();
+    add(product('p1', '10.00'), 2);
+
+    const originalItem = useCart.getState().items[0];
+    add(product('p1', '10.00'), 3);
+
+    expect(useCart.getState().items).toHaveLength(1);
+    expect(useCart.getState().items[0]).not.toBe(originalItem);
+    expect(useCart.getState().items[0].quantity).toBe(5);
+  });
+
   it('accumulates quantity when the same product is added again', () => {
     const { add } = useCart.getState();
     add(product('p1', '10.00'), 2);
